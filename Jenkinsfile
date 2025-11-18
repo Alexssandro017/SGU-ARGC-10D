@@ -1,6 +1,6 @@
 pipeline {
     // 1. CORRECCIÓN #1: Forzar el agente 'master' (Windows)
-    //    Esto soluciona el error 'bat: command not found'
+    //    Esto soluciona el error  'bat: command not found'
     agent any
 
     stages {
