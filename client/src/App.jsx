@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import './App.css';
+import './App.css'; // El CSS que vamos a reemplazar
 
 function App() {
   // Configuración de la URL usando variables de entorno
@@ -52,8 +52,7 @@ function App() {
 
       if (!response.ok) throw new Error('Error al guardar');
       
-      setEditingId(null);
-      setFormData({ name: '', email: '', phoneNumber: '' });
+      resetForm();
       fetchUsers();
       
     } catch (err) {
@@ -80,71 +79,108 @@ function App() {
     });
   };
 
+  const resetForm = () => {
+    setEditingId(null);
+    setFormData({ name: '', email: '', phoneNumber: '' });
+  };
+
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
     <div className="app-container">
-      <h1>SGU - Gestión de Usuarios</h1>
-      
-      <div className="form-card">
-        <h2>{editingId ? 'Editar' : 'Crear'} Usuario</h2>
-        <form onSubmit={handleSubmit}>
-          <input 
-            name="name" 
-            placeholder="Nombre Completo" 
-            value={formData.name} 
-            onChange={handleInputChange} 
-            required 
-          />
-          <input 
-            name="email" 
-            type="email" 
-            placeholder="Correo Electrónico" 
-            value={formData.email} 
-            onChange={handleInputChange} 
-            required 
-          />
-          <input 
-            name="phoneNumber" 
-            placeholder="Teléfono" 
-            value={formData.phoneNumber} 
-            onChange={handleInputChange} 
-            required 
-          />
-          <button type="submit">{editingId ? 'Actualizar' : 'Guardar'}</button>
-        </form>
-        {error && <p style={{color: 'red'}}>{error}</p>}
-      </div>
+      <header>
+        <h1>SGU - Gestión de Usuarios</h1>
+      </header>
 
-      <div className="table-card">
-        {loading ? <p>Cargando...</p> : (
-          <table border="1" style={{width: '100%', marginTop: '20px'}}>
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Teléfono</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.name}</td>
-                  <td>{user.email}</td>
-                  <td>{user.phoneNumber}</td>
-                  <td>
-                    <button onClick={() => handleEdit(user)}>Editar</button>
-                    <button onClick={() => handleDelete(user.id)}>Borrar</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <main className="content-layout">
+        {/* ---- FORMULARIO ---- */}
+        <div className="form-card card">
+          <h2>{editingId ? 'Editar Usuario' : 'Crear Nuevo Usuario'}</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="name">Nombre Completo</label>
+              <input 
+                id="name"
+                name="name" 
+                placeholder="Ej: Alexsandro Rodriguez" 
+                value={formData.name} 
+                onChange={handleInputChange} 
+                required 
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="email">Correo Electrónico</label>
+              <input 
+                id="email"
+                name="email" 
+                type="email" 
+                placeholder="ejemplo@correo.com" 
+                value={formData.email} 
+                onChange={handleInputChange} 
+                required 
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="phoneNumber">Teléfono</label>
+              <input 
+                id="phoneNumber"
+                name="phoneNumber" 
+                placeholder="Ej: 55 1234 5678" 
+                value={formData.phoneNumber} 
+                onChange={handleInputChange} 
+                required 
+              />
+            </div>
+            <div className="form-buttons">
+              <button type="submit" className="btn btn-primary">
+                {editingId ? 'Actualizar' : 'Guardar'}
+              </button>
+              {editingId && (
+                <button type="button" className="btn btn-secondary" onClick={resetForm}>
+                  Cancelar
+                </button>
+              )}
+            </div>
+          </form>
+          {error && <p className="error-message">{error}</p>}
+        </div>
+
+        {/* ---- TABLA DE USUARIOS ---- */}
+        <div className="table-card card">
+          <h2>Lista de Usuarios</h2>
+          {loading ? <p>Cargando...</p> : (
+            <div className="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((user) => (
+                    <tr key={user.id}>
+                      <td data-label="Nombre">{user.name}</td>
+                      <td data-label="Email">{user.email}</td>
+                      <td data-label="Teléfono">{user.phoneNumber}</td>
+                      <td data-label="Acciones">
+                        <div className="action-buttons">
+                          <button className="btn btn-edit" onClick={() => handleEdit(user)}>Editar</button>
+                          <button className="btn btn-delete" onClick={() => handleDelete(user.id)}>Borrar</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
