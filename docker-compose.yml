@@ -1,56 +1,62 @@
 services:
-    database:
-        image: mysql:8
-        container_name: adj-database # <-- 1. CORREGIDO: Sin el ':' al final
-        environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: adj-demo    # <-- 3. Nombre de la BD
-        ports:
-            - "3307:3306"
-        networks: 
-            - adj-net
-        volumes: 
-            - adj-volume:/var/lib/mysql
+  # --- REQUISITO: Base de datos ---
+  database:
+    image: mysql:8
+    container_name: sgu-database   # <-- Nombre obligatorio según PDF
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sgu_db       # <-- El nombre de la BD
+    ports:
+      - "3307:3306"
+    networks:
+      - sgu-net                    # <-- Red obligatoria
+    volumes:
+      - sgu-volume:/var/lib/mysql  # <-- Volumen obligatorio
 
-    frontend:
-        image: client:latest
-        build:
-            context: ./client
-            args: 
-                API_HOST: localhost
-                API_BASE: /adj-api
-                API_PORT: 8081
-        container_name: adj-client
-        ports:
-            - "3000:80"
-        networks:
-            - adj-net
-        depends_on:
-            - backend                 # <-- 4. CORREGIDO: El frontend depende del backend
+  # --- REQUISITO: Cliente (Frontend) ---
+  frontend:
+    image: client:1.0-sgu          # <-- Imagen y versión obligatoria
+    build:
+      context: ./client
+      # Pasamos los argumentos para que Vite funcione (nuestro arreglo)
+      args:
+        API_HOST: localhost
+        API_BASE: /sgu-api
+        API_PORT: 8081
+    container_name: sgu-frontend   # <-- Nombre obligatorio
+    ports:
+      - "3000:80"
+    networks:
+      - sgu-net
+    depends_on:
+      - backend                    # El frontend espera al backend
 
-    backend:
-        image: server:latest
-        build:
-            context: ./server
-        environment:
-            SERVER_PORT: 8080
-            DB_HOST: database         # <-- 2. CORREGIDO: Se usa el nombre del servicio 'database'
-            DB_PORT: 3306             # (Este puerto interno está bien)
-            DB_NAME: adj-demo         # <-- 3. CORREGIDO: Debe coincidir (adj-demo)
-            DB_USER: root
-            DB_PASSWORD: root
-        container_name: adj-server
-        ports:
-            - "8081:8080"
-        networks:
-            - adj-net
-        depends_on:
-            - database                # <-- 4. CORREGIDO: El backend depende de la database
+  # --- REQUISITO: Servidor (Backend) ---
+  backend:
+    image: server:1.0-sgu          # <-- Imagen y versión obligatoria
+    build:
+      context: ./server
+    environment:
+      SERVER_PORT: 8080
+      DB_HOST: sgu-database        # <-- Se conecta a 'sgu-database', NO a localhost
+      DB_PORT: 3306
+      DB_NAME: sgu_db              # <-- Debe coincidir con la BD
+      DB_USER: root
+      DB_PASSWORD: root
+    container_name: sgu-backend    # <-- Nombre obligatorio
+    ports:
+      - "8081:8888" # <--- ERROR EN EL PDF/CLASE? Vamos a probar 8081:8080
+      - "8081:8080"
+    networks:
+      - sgu-net
+    depends_on:
+      - database                   # El backend espera a la base de datos
+
+# --- REQUISITOS DE RED Y VOLUMEN ---
+networks:
+  sgu-net:
+    external: true                 # Le decimos que la crearemos manualmente
 
 volumes:
-    adj-volume:
-        external: true
-
-networks:
-    adj-net:
-        external: true
+  sgu-volume:
+    external: true                 # Le decimos que lo crearemos manualmente
