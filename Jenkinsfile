@@ -6,7 +6,7 @@ pipeline {
         stage('Parando los servicios...') {
             steps {
                 bat '''
-                    docker compose -p SGU-ARGC-10D down || exit /b 0
+                    docker compose -p sgu-project down || exit /b 0
                 '''
             }
         }
@@ -15,7 +15,7 @@ pipeline {
         stage('Eliminando imágenes anteriores...') {
             steps {
                 bat '''
-                    for /f "tokens=*" %%i in ('docker images --filter "label=com.docker.compose.project=SGU-ARGC-10D" -q') do (
+                    for /f "tokens=*" %%i in ('docker images --filter "label=com.docker.compose.project=sgu-project" -q') do (
                         docker rmi -f %%i
                     )
                     if errorlevel 1 (
@@ -38,8 +38,8 @@ pipeline {
         stage('Construyendo y desplegando servicios...') {
             steps {
                 bat '''
-                    // CORREGIDO: Agregado '-p SGU-ARGC-10D' por consistencia
-                    docker compose -p SGU-ARGC-10D up --build -d
+                    // CORREGIDO: Agregado '-p sgu-project' por consistencia
+                    docker compose -p sgu-project up --build -d
                 '''
             }
         }
