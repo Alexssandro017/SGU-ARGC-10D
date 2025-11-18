@@ -15,7 +15,7 @@ pipeline {
         stage('Eliminando imágenes anteriores...') {
             steps {
                 bat '''
-                    for /f "tokens=*" %%i in ('docker images --filter "label=com.docker.compose.project=adj-demo" -q') do (
+                    for /f "tokens=*" %%i in ('docker images --filter "label=com.docker.compose.project=SGU-ARGC-10D" -q') do (
                         docker rmi -f %%i
                     )
                     if errorlevel 1 (
@@ -38,8 +38,8 @@ pipeline {
         stage('Construyendo y desplegando servicios...') {
             steps {
                 bat '''
-                    // CORREGIDO: Agregado '-p adj-demo' por consistencia
-                    docker compose -p adj-demo up --build -d
+                    // CORREGIDO: Agregado '-p SGU-ARGC-10D' por consistencia
+                    docker compose -p SGU-ARGC-10D up --build -d
                 '''
             }
         }
