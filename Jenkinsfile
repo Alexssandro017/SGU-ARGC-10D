@@ -1,62 +1,45 @@
 pipeline {
-    agent any
+    // 1. CORRECCIÓN #1: Forzar el agente 'master' (Windows)
+    //    Esto soluciona el error 'bat: command not found'
+    agent {
+        label 'master'
+    }
 
     stages {
-        // Parar los servicios que ya existen o en todo caso hacer caso omiso
-        stage('Parando los servicios...') {
+        // 2. CORRECCIÓN #2: Usar el nombre de proyecto VÁLIDO 'sgu-project'
+        stage('Parando servicios SGU...') {
             steps {
-                bat '''
-                    docker compose -p sgu-project down || exit /b 0
-                '''
+                bat 'docker compose -p sgu-project down || exit /b 0'
             }
         }
 
-        // Eliminar las imágenes creadas por ese proyecto
-        stage('Eliminando imágenes anteriores...') {
+        stage('Limpiando imágenes SGU...') {
             steps {
                 bat '''
                     for /f "tokens=*" %%i in ('docker images --filter "label=com.docker.compose.project=sgu-project" -q') do (
                         docker rmi -f %%i
                     )
-                    if errorlevel 1 (
-                        echo No hay imagenes por eliminar
-                    ) else (
-                        echo Imagenes eliminadas correctamente
-                    )
                 '''
             }
         }
 
-        // Del recurso SCM configurado en el job, jala el repo
-        stage('Obteniendo actualización...') {
+        stage('Obteniendo código...') {
             steps {
                 checkout scm
             }
         }
 
-        // Construir y levantar los servicios
-        stage('Construyendo y desplegando servicios...') {
+        stage('Desplegando SGU...') {
             steps {
-                bat '''
-                    // CORREGIDO: Agregado '-p sgu-project' por consistencia
-                    docker compose -p sgu-project up --build -d
-                '''
+                // 3. CORRECCIÓN #3: Quitar el comentario '//' que rompe 'bat'
+                bat 'docker compose -p sgu-project up --build -d'
             }
         }
     }
-
+    
     post {
-        success {
-            echo 'Pipeline ejecutado con éxito'
-        }
-
-        failure {
-            echo 'Hubo un error al ejecutar el pipeline'
-        }
-
         always {
-            echo 'Pipeline finalizado'
+            echo 'Pipeline SGU finalizado'
         }
     }
 }
-
