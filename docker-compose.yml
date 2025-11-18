@@ -1,56 +1,56 @@
 services:
-  database:
-    image: mysql:8
-    container_name: sgu-database   
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: sgu_db      
-    ports:
-      - "3307:3306"
-    networks:
-      - sgu-net                  
-    volumes:
-      - sgu-volume:/var/lib/mysql 
+    database:
+        image: mysql:8
+        container_name: adj-database # <-- 1. CORREGIDO: Sin el ':' al final
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: adj-demo    # <-- 3. Nombre de la BD
+        ports:
+            - "3307:3306"
+        networks: 
+            - adj-net
+        volumes: 
+            - adj-volume:/var/lib/mysql
 
-  frontend:
-    image: client:1.0-sgu         
-    build:
-      context: ./client
-      args:
-        API_HOST: localhost
-        API_BASE: /sgu-api
-        API_PORT: 8081
-    container_name: sgu-frontend  
-    ports:
-      - "3000:80"
-    networks:
-      - sgu-net
-    depends_on:
-      - backend
+    frontend:
+        image: client:latest
+        build:
+            context: ./client
+            args: 
+                API_HOST: localhost
+                API_BASE: /adj-api
+                API_PORT: 8081
+        container_name: adj-client
+        ports:
+            - "3000:80"
+        networks:
+            - adj-net
+        depends_on:
+            - backend                 # <-- 4. CORREGIDO: El frontend depende del backend
 
-  backend:
-    image: server:1.0-sgu          
-    build:
-      context: ./server
-    environment:
-      SERVER_PORT: 8080
-      DB_HOST: sgu-database       
-      DB_PORT: 3306
-      DB_NAME: sgu_db
-      DB_USER: root
-      DB_PASSWORD: root
-    container_name: sgu-backend    
-    ports:
-      - "8081:8080"
-    networks:
-      - sgu-net
-    depends_on:
-      - database
-
-networks:
-  sgu-net:
-    external: true  
+    backend:
+        image: server:latest
+        build:
+            context: ./server
+        environment:
+            SERVER_PORT: 8080
+            DB_HOST: database         # <-- 2. CORREGIDO: Se usa el nombre del servicio 'database'
+            DB_PORT: 3306             # (Este puerto interno está bien)
+            DB_NAME: adj-demo         # <-- 3. CORREGIDO: Debe coincidir (adj-demo)
+            DB_USER: root
+            DB_PASSWORD: root
+        container_name: adj-server
+        ports:
+            - "8081:8080"
+        networks:
+            - adj-net
+        depends_on:
+            - database                # <-- 4. CORREGIDO: El backend depende de la database
 
 volumes:
-  sgu-volume:
-    external: true  
+    adj-volume:
+        external: true
+
+networks:
+    adj-net:
+        external: true

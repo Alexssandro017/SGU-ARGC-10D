@@ -1,42 +1,62 @@
 pipeline {
-    agent {
-        label 'master'
-    }
-
+    agent any
 
     stages {
-        stage('Parando servicios SGU...') {
+        // Parar los servicios que ya existen o en todo caso hacer caso omiso
+        stage('Parando los servicios...') {
             steps {
-                bat 'docker compose -p sgu-project down || exit /b 0'
+                bat '''
+                    docker compose -p adj-demo down || exit /b 0
+                '''
             }
         }
 
-        stage('Limpiando imágenes SGU...') {
+        // Eliminar las imágenes creadas por ese proyecto
+        stage('Eliminando imágenes anteriores...') {
             steps {
                 bat '''
-                    for /f "tokens=*" %%i in ('docker images --filter "label=com.docker.compose.project=sgu-project" -q') do (
+                    for /f "tokens=*" %%i in ('docker images --filter "label=com.docker.compose.project=adj-demo" -q') do (
                         docker rmi -f %%i
+                    )
+                    if errorlevel 1 (
+                        echo No hay imagenes por eliminar
+                    ) else (
+                        echo Imagenes eliminadas correctamente
                     )
                 '''
             }
         }
 
-        stage('Obteniendo código...') {
+        // Del recurso SCM configurado en el job, jala el repo
+        stage('Obteniendo actualización...') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Desplegando SGU...') {
+        // Construir y levantar los servicios
+        stage('Construyendo y desplegando servicios...') {
             steps {
-                bat 'docker compose -p sgu-project up --build -d'
+                bat '''
+                    // CORREGIDO: Agregado '-p adj-demo' por consistencia
+                    docker compose -p adj-demo up --build -d
+                '''
             }
         }
     }
-    
+
     post {
+        success {
+            echo 'Pipeline ejecutado con éxito'
+        }
+
+        failure {
+            echo 'Hubo un error al ejecutar el pipeline'
+        }
+
         always {
-            echo 'Pipeline SGU finalizado'
+            echo 'Pipeline finalizado'
         }
     }
 }
+
