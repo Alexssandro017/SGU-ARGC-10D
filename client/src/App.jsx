@@ -104,7 +104,7 @@ function App() {
               <input 
                 id="name"
                 name="name" 
-                placeholder="Ej: Alexsandro Rodriguez" 
+                placeholder="Ej: Nombre Ejemplo" 
                 value={formData.name} 
                 onChange={handleInputChange} 
                 required 
