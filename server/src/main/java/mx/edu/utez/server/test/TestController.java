@@ -1,4 +1,4 @@
-package sgu.argc.server.modules.test;
+package mx.edu.utez.server.test;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,9 +1,10 @@
-package sgu.argc.server.controller;
+package mx.edu.utez.server.controller;
 
+import mx.edu.utez.server.model.User;
+import mx.edu.utez.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import sgu.argc.server.model.User;
-import sgu.argc.server.repository.UserRepository;
+
 
 import java.util.List;
 

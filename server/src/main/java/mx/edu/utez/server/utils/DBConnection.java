@@ -1,4 +1,4 @@
-package sgu.argc.server.utils;
+package mx.edu.utez.server.utils;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
